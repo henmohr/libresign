@@ -114,7 +114,7 @@ class TelemetryServiceTest extends TestCase {
 	public function testSendsOnlyAllowlistedAggregateDataWithBoundedTransport(): void {
 		$this->enable();
 		$this->settings['telemetry_web_server'] = 'nginx/1.20 private-host admin@example.com';
-		$usage = ['files' => 10, 'envelopes' => 2, 'sequential_flows' => 3, 'signatures' => 20, 'completed_flows' => 4];
+		$usage = ['files' => 10, 'envelopes' => 2, 'sequential_flows' => 3, 'signatures' => 20, 'signed_documents' => 8, 'completed_flows' => 4];
 		$this->mapper->method('getUsage')->willReturn($usage);
 		$this->mapper->method('getCancelledFlows')->willReturn(7);
 		$this->mapper->expects(self::once())->method('getActiveUsers')->with(self::NOW - 30 * 86400)->willReturn(12);

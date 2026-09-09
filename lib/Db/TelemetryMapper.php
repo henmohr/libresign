@@ -19,13 +19,17 @@ class TelemetryMapper {
 	) {
 	}
 
-	/** @return array{files: int, envelopes: int, sequential_flows: int, signatures: int, completed_flows: int} */
+	/** @return array{files: int, envelopes: int, sequential_flows: int, signatures: int, signed_documents: int, completed_flows: int} */
 	public function getUsage(): array {
 		return [
 			'files' => $this->countFiles(['node_type' => 'file']),
 			'envelopes' => $this->countFiles(['node_type' => 'envelope']),
 			'sequential_flows' => $this->countFiles(['signature_flow' => SignatureFlow::NUMERIC_ORDERED_NUMERIC], true),
 			'signatures' => $this->countSignatures(),
+			'signed_documents' => $this->countFiles([
+				'node_type' => 'file',
+				'status' => FileStatus::SIGNED->value,
+			]),
 			'completed_flows' => $this->countFiles(['status' => FileStatus::SIGNED->value], true),
 		];
 	}
