@@ -15,6 +15,7 @@ use OCA\Libresign\Db\IdentifyMethodMapper;
 use OCA\Libresign\Db\SignRequest as SignRequestEntity;
 use OCA\Libresign\Db\SignRequestMapper;
 use OCA\Libresign\Enum\FileStatus;
+use OCA\Libresign\Events\SigningFlowCancelledEvent;
 use OCA\Libresign\Events\SignRequestCanceledEvent;
 use OCA\Libresign\Exception\LibresignException;
 use OCA\Libresign\Handler\DocMdpHandler;
@@ -621,8 +622,12 @@ class RequestSignatureService {
 	private function revertStatusToDraftIfNoSignersRemain(FileEntity $file): void {
 		$remaining = $this->signRequestMapper->getByFileId($file->getId());
 		if (empty($remaining)) {
+			$wasActive = in_array($file->getStatus(), [FileStatus::ABLE_TO_SIGN->value, FileStatus::PARTIAL_SIGNED->value], true);
 			$file->setStatus(FileStatus::DRAFT->value);
 			$this->fileStatusService->update($file);
+			if ($wasActive && !$file->hasParent()) {
+				$this->eventDispatcher->dispatchTyped(new SigningFlowCancelledEvent());
+			}
 		}
 	}
 
@@ -697,5 +702,8 @@ class RequestSignatureService {
 		}
 		$this->fileMapper->delete($fileData);
 		$this->fileElementService->deleteVisibleElements($fileData->getId());
+		if (!$fileData->hasParent() && in_array($fileData->getStatus(), [FileStatus::ABLE_TO_SIGN->value, FileStatus::PARTIAL_SIGNED->value], true)) {
+			$this->eventDispatcher->dispatchTyped(new SigningFlowCancelledEvent());
+		}
 	}
 }
