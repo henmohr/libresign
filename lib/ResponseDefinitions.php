@@ -11,6 +11,12 @@ namespace OCA\Libresign;
 /**
  * Base contracts
  *
+ * @psalm-type LibresignTelemetrySettings = array{
+ *     enabled: bool,
+ *     url: string,
+ *     lastSent: int,
+ * }
+ *
  * @psalm-type LibresignPagination = array{
  *     total: non-negative-int,
  *     current: ?string,

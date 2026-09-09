@@ -6,6 +6,7 @@
 <template>
 	<div>
 		<SupportProject />
+		<Telemetry />
 		<CertificateEngine />
 		<SignatureEngine />
 		<DownloadBinaries />
@@ -25,6 +26,7 @@ import RootCertificateCfssl from './RootCertificateCfssl.vue'
 import RootCertificateOpenSsl from './RootCertificateOpenSsl.vue'
 import SignatureEngine from './SignatureEngine.vue'
 import SupportProject from './SupportProject.vue'
+import Telemetry from './Telemetry.vue'
 
 defineOptions({
 	name: 'Settings',
@@ -37,6 +39,7 @@ defineOptions({
 		SettingsPolicyWorkbench,
 		SignatureEngine,
 		SupportProject,
+		Telemetry,
 	},
 })
 </script>

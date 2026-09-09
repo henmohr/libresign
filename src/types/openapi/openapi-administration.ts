@@ -283,6 +283,50 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/ocs/v2.php/apps/libresign/api/{apiVersion}/admin/telemetry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get telemetry settings
+         * @description This endpoint requires admin access
+         */
+        get: operations["telemetry-get-settings"];
+        /**
+         * Configure optional telemetry
+         * @description This endpoint requires admin access
+         */
+        put: operations["telemetry-set-settings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ocs/v2.php/apps/libresign/api/{apiVersion}/admin/telemetry/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a telemetry report now
+         * @description This endpoint requires admin access
+         */
+        post: operations["telemetry-send-report"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 };
 export type webhooks = Record<string, never>;
 export type components = {
@@ -507,6 +551,12 @@ export type components = {
             allowedValues: components["schemas"]["EffectivePolicyValue"][];
         };
         SystemPolicyWriteResponse: components["schemas"]["MessageResponse"] & components["schemas"]["EffectivePolicyResponse"];
+        TelemetrySettings: {
+            enabled: boolean;
+            url: string;
+            /** Format: int64 */
+            lastSent: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -1283,6 +1333,125 @@ export interface operations {
                         ocs: {
                             meta: components["schemas"]["OCSMeta"];
                             data: components["schemas"]["HasRootCertResponse"];
+                        };
+                    };
+                };
+            };
+        };
+    };
+    "telemetry-get-settings": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Required to be true for the API request to pass */
+                "OCS-APIRequest": boolean;
+            };
+            path: {
+                apiVersion: "v1";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: components["schemas"]["TelemetrySettings"];
+                        };
+                    };
+                };
+            };
+        };
+    };
+    "telemetry-set-settings": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Required to be true for the API request to pass */
+                "OCS-APIRequest": boolean;
+            };
+            path: {
+                apiVersion: "v1";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Whether the administrator consents to reporting */
+                    enabled: boolean;
+                    /** @description HTTPS report receiver without credentials, query or fragment */
+                    url: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Saved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: components["schemas"]["TelemetrySettings"];
+                        };
+                    };
+                };
+            };
+            /** @description Invalid receiver URL */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                /** @enum {string} */
+                                error: "invalid_url";
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+    "telemetry-send-report": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Required to be true for the API request to pass */
+                "OCS-APIRequest": boolean;
+            };
+            path: {
+                apiVersion: "v1";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Report result; failures never include remote response data */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                /** @enum {string} */
+                                status: "sent" | "disabled" | "not_due" | "failed";
+                            };
                         };
                     };
                 };

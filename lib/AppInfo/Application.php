@@ -8,12 +8,15 @@ declare(strict_types=1);
 
 namespace OCA\Libresign\AppInfo;
 
+use OCA\Libresign\Vendor\LibreCode\UsageStatistics\Transport\StreamTransport;
+use OCA\Libresign\Vendor\LibreCode\UsageStatistics\Transport\TransportInterface;
 use OCA\Files\Event\LoadSidebar;
 use OCA\Libresign\Activity\Listener as ActivityListener;
 use OCA\Libresign\Capabilities;
 use OCA\Libresign\Dashboard\PendingSignaturesWidget;
 use OCA\Libresign\Events\SendSignNotificationEvent;
 use OCA\Libresign\Events\SignedEvent;
+use OCA\Libresign\Events\SigningFlowCancelledEvent;
 use OCA\Libresign\Events\SignRequestCanceledEvent;
 use OCA\Libresign\Files\TemplateLoader;
 use OCA\Libresign\Listener\BeforeNodeDeletedListener;
@@ -22,6 +25,7 @@ use OCA\Libresign\Listener\MailNotifyListener;
 use OCA\Libresign\Listener\NotificationListener;
 use OCA\Libresign\Listener\RevokeClickToSignCertificateListener;
 use OCA\Libresign\Listener\SignedCallbackListener;
+use OCA\Libresign\Listener\TelemetryListener;
 use OCA\Libresign\Listener\TwofactorGatewayListener;
 use OCA\Libresign\Listener\UserDeletedListener;
 use OCA\Libresign\Middleware\GlobalInjectionMiddleware;
@@ -52,6 +56,7 @@ class Application extends App implements IBootstrap {
 
 	#[\Override]
 	public function register(IRegistrationContext $context): void {
+		$context->registerService(TransportInterface::class, static fn (): TransportInterface => new StreamTransport());
 		$context->registerMiddleWare(GlobalInjectionMiddleware::class, true);
 		$context->registerMiddleWare(InjectionMiddleware::class);
 		$context->registerCapability(Capabilities::class);
@@ -63,6 +68,7 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(BeforeNodeDeletedEvent::class, BeforeNodeDeletedListener::class);
 		$context->registerEventListener(CacheEntryRemovedEvent::class, BeforeNodeDeletedListener::class);
 		$context->registerEventListener(SignedEvent::class, SignedCallbackListener::class);
+		$context->registerEventListener(SigningFlowCancelledEvent::class, TelemetryListener::class);
 
 		// Files newFile listener
 		$context->registerEventListener('OCA\\Files\\Event\\LoadAdditionalScriptsEvent', LoadAdditionalListener::class);
